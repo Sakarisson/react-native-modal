@@ -1,3 +1,7 @@
+🚧 We're looking for maintainers and contributors! See [#414](https://github.com/react-native-community/react-native-modal/issues/414)
+
+<br />
+
 # react-native-modal
 
 [![npm version](https://badge.fury.io/js/react-native-modal.svg)](https://badge.fury.io/js/react-native-modal)
@@ -42,12 +46,12 @@ function WrapperComponent() {
   return (
     <View>
       <Modal>
-        <View style={{ flex: 1 }}>
+        <View style={{flex: 1}}>
           <Text>I am the modal content!</Text>
         </View>
       </Modal>
     </View>
-  )
+  );
 }
 ```
 
@@ -58,12 +62,12 @@ function WrapperComponent() {
   return (
     <View>
       <Modal isVisible={true}>
-        <View style={{ flex: 1 }}>
+        <View style={{flex: 1}}>
           <Text>I am the modal content!</Text>
         </View>
       </Modal>
     </View>
-  )
+  );
 }
 ```
 
@@ -83,26 +87,24 @@ import Modal from 'react-native-modal';
 
 function ModalTester() {
   const [isModalVisible, setModalVisible] = useState(false);
-  
+
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
 
-  render() {
-    return (
-      <View style={{flex: 1}}>
-        <Button title="Show modal" onPress={toggleModal} />
+  return (
+    <View style={{flex: 1}}>
+      <Button title="Show modal" onPress={toggleModal} />
 
-        <Modal isVisible={isModalVisible}>
-          <View style={{flex: 1}}>
-            <Text>Hello!</Text>
+      <Modal isVisible={isModalVisible}>
+        <View style={{flex: 1}}>
+          <Text>Hello!</Text>
 
-            <Button title="Hide modal" onPress={toggleModal} />
-          </View>
-        </Modal>
-      </View>
-    );
-  }
+          <Button title="Hide modal" onPress={toggleModal} />
+        </View>
+      </Modal>
+    </View>
+  );
 }
 
 export default ModalTester;
@@ -147,6 +149,7 @@ For a more complex example take a look at the `/example` directory.
 | swipeThreshold                 | number           | 100                            | Swiping threshold that when reached calls `onSwipeComplete`                                                                                |
 | swipeDirection                 | string or array  | null                           | Defines the direction where the modal can be swiped. Can be 'up', 'down', 'left, or 'right', or a combination of them like `['up','down']` |
 | useNativeDriver                | bool             | false                          | Defines if animations should use native driver                                                                                             |
+| useNativeDriverForBackdrop     | bool             | null                           | Defines if animations for backdrop should use native driver (to avoid flashing on android)                                                 |
 | hideModalContentWhileAnimating | bool             | false                          | Enhances the performance by hiding the modal content until the animations complete                                                         |
 | propagateSwipe                 | bool             | false                          | Allows swipe events to propagate to children components (eg a ScrollView inside a modal)                                                   |
 | style                          | any              | null                           | Style applied to the modal                                                                                                                 |
@@ -165,10 +168,13 @@ If you're experiencing this issue, you'll need to install [`react-native-extra-d
 Then, provide the real window height (obtained from `react-native-extra-dimensions-android`) to the modal:
 
 ```javascript
-const deviceWidth = Dimensions.get("window").width;
-const deviceHeight = Platform.OS === "ios"
-  ? Dimensions.get("window").height
-  : require("react-native-extra-dimensions-android").get("REAL_WINDOW_HEIGHT");
+const deviceWidth = Dimensions.get('window').width;
+const deviceHeight =
+  Platform.OS === 'ios'
+    ? Dimensions.get('window').height
+    : require('react-native-extra-dimensions-android').get(
+        'REAL_WINDOW_HEIGHT',
+      );
 
 function WrapperComponent() {
   const [isModalVisible, setModalVisible] = useState(true);
@@ -177,13 +183,12 @@ function WrapperComponent() {
     <Modal
       isVisible={isModalVisible}
       deviceWidth={deviceWidth}
-      deviceHeight={deviceHeight}
-    >
-      <View style={{ flex: 1 }}>
+      deviceHeight={deviceHeight}>
+      <View style={{flex: 1}}>
         <Text>I am the modal content!</Text>
       </View>
     </Modal>
-  )
+  );
 }
 ```
 
@@ -208,7 +213,7 @@ The prop `onSwipeComplete` allows you to handle this situation (remember to set 
 ```javascript
 <Modal
   isVisible={isModalVisible}
-  onSwipeComplete={() => setModalVisible(false)}>
+  onSwipeComplete={() => setModalVisible(false)}
   swipeDirection="left">
   <View style={{flex: 1}}>
     <Text>I am the modal content!</Text>
@@ -280,9 +285,7 @@ Also, some users have noticed that setting backdropTransitionOutTiming={0} can f
 You need to specify the size of your custom backdrop component. You can also make it expand to fill the entire screen by adding a `flex: 1` to its style:
 
 ```javascript
-<Modal
-  isVisible={isModalVisible}
-  customBackdrop={<View style={{flex: 1}} />}>
+<Modal isVisible={isModalVisible} customBackdrop={<View style={{flex: 1}} />}>
   <View style={{flex: 1}}>
     <Text>I am the modal content!</Text>
   </View>

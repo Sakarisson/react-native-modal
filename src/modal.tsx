@@ -3,6 +3,7 @@ import {
   Animated,
   DeviceEventEmitter,
   Dimensions,
+  InteractionManager,
   KeyboardAvoidingView,
   Modal,
   PanResponder,
@@ -76,6 +77,7 @@ export interface ModalProps extends ViewProps {
   backdropTransitionOutTiming?: number;
   customBackdrop?: React.ReactNode;
   useNativeDriver?: boolean;
+  useNativeDriverForBackdrop?: boolean;
   deviceHeight?: number | null;
   deviceWidth?: number | null;
   hideModalContentWhileAnimating?: boolean;
@@ -170,6 +172,7 @@ export class ReactNativeModal extends React.Component<ModalProps, State> {
       PropTypes.oneOf(['up', 'down', 'left', 'right']),
     ]),
     useNativeDriver: PropTypes.bool,
+    useNativeDriverForBackdrop: PropTypes.bool,
     style: PropTypes.any,
     scrollTo: PropTypes.func,
     scrollOffset: PropTypes.number,
@@ -591,10 +594,12 @@ export class ReactNativeModal extends React.Component<ModalProps, State> {
 
     if (this.contentRef) {
       this.props.onModalWillShow && this.props.onModalWillShow();
+      const interactionHandle = InteractionManager.createInteractionHandle();
       this.contentRef
         .animate(this.animationIn, this.props.animationInTiming)
         .then(() => {
           this.isTransitioning = false;
+          InteractionManager.clearInteractionHandle(interactionHandle);
           if (!this.props.isVisible) {
             this.close();
           } else {
@@ -633,10 +638,12 @@ export class ReactNativeModal extends React.Component<ModalProps, State> {
 
     if (this.contentRef) {
       this.props.onModalWillHide && this.props.onModalWillHide();
+      const interactionHandle = InteractionManager.createInteractionHandle();
       this.contentRef
         .animate(animationOut, this.props.animationOutTiming)
         .then(() => {
           this.isTransitioning = false;
+          InteractionManager.clearInteractionHandle(interactionHandle);
           if (this.props.isVisible) {
             this.open();
           } else {
@@ -675,6 +682,7 @@ export class ReactNativeModal extends React.Component<ModalProps, State> {
       customBackdrop,
       backdropColor,
       useNativeDriver,
+      useNativeDriverForBackdrop,
       onBackdropPress,
     } = this.props;
     const hasCustomBackdrop = !!this.props.customBackdrop;
@@ -692,8 +700,12 @@ export class ReactNativeModal extends React.Component<ModalProps, State> {
 
     const backdropWrapper = (
       <animatable.View
-        ref={(ref) => (this.backdropRef = ref)}
-        useNativeDriver={useNativeDriver}
+        ref={ref => (this.backdropRef = ref)}
+        useNativeDriver={
+          useNativeDriverForBackdrop !== undefined
+            ? useNativeDriverForBackdrop
+            : useNativeDriver
+        }
         style={[styles.backdrop, backdropComputedStyle]}>
         {hasCustomBackdrop && customBackdrop}
       </animatable.View>
@@ -736,6 +748,7 @@ export class ReactNativeModal extends React.Component<ModalProps, State> {
       ...otherProps
     } = this.props;
 
+    const {testID, ...containerProps} = otherProps;
     const computedStyle = [
       {margin: this.getDeviceWidth() * 0.05, transform: [{translateY: 0}]},
       styles.content,
@@ -769,11 +782,11 @@ export class ReactNativeModal extends React.Component<ModalProps, State> {
     const containerView = (
       <animatable.View
         {...panHandlers}
-        ref={(ref) => (this.contentRef = ref)}
+        ref={ref => (this.contentRef = ref)}
         style={[panPosition, computedStyle]}
         pointerEvents="box-none"
         useNativeDriver={useNativeDriver}
-        {...otherProps}>
+        {...containerProps}>
         {_children}
       </animatable.View>
     );
